@@ -1,4 +1,17 @@
+import { useState } from 'react'
+import PlannerModal from './PlannerModal'
+
 function Hero() {
+  const [isPlannerOpen, setIsPlannerOpen] = useState(false)
+
+  const openPlanner = () => {
+    setIsPlannerOpen(true)
+  }
+
+  const closePlanner = () => {
+    setIsPlannerOpen(false)
+  }
+
   return (
     <section className="relative pt-20 pb-32 overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
       {/* Blurred shapes */}
@@ -26,9 +39,12 @@ function Hero() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a href="#get-started" className="px-8 py-4 bg-white text-indigo-600 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-white/30">
+              <button 
+                onClick={openPlanner}
+                className="px-8 py-4 bg-white text-indigo-600 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-white/30"
+              >
                 Plan Your Adventure
-              </a>
+              </button>
               <a href="#learn-more" className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white/10 transform transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-white/30">
                 Explore Destinations
               </a>
@@ -128,6 +144,9 @@ function Hero() {
           <path fill="#f9fafb" fillOpacity="1" d="M0,256L48,240C96,224,192,192,288,181.3C384,171,480,181,576,186.7C672,192,768,192,864,176C960,160,1056,128,1152,122.7C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
         </svg>
       </div> */}
+
+      {/* Planner Modal */}
+      <PlannerModal isOpen={isPlannerOpen} onClose={closePlanner} />
     </section>
   )
 }
