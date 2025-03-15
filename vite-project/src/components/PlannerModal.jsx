@@ -119,68 +119,24 @@ const PlannerModal = ({ isOpen, onClose }) => {
       setIsSubmitting(true)
       setError(null)
       
-      // This would be your actual API endpoint in production
-      // const response = await fetch('/api/generateItinerary', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(tripData),
-      // })
-      
-      // Simulate API call for demo purposes
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Simulated response for demo purposes
-      // In production, this would be actual data from your Gemini API call
-      const itineraryData = {
-        id: 'trip-' + Date.now(),
-        name: tripData.tripName,
-        destinations: tripData.destinations.map(d => d.value).filter(Boolean),
-        dates: {
-          start: tripData.startDate || 'Flexible',
-          end: tripData.endDate || 'Flexible',
-          duration: tripData.duration
+      // Make API call to backend that uses Gemini AI
+      const response = await fetch('http://localhost:5001/api/generateItinerary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        travelers: tripData.isSolo ? 'Solo' : `${tripData.adults} adults, ${tripData.children} children`,
-        budget: {
-          amount: tripData.budget,
-          currency: tripData.currency,
-          category: tripData.budgetCategory
-        },
-        priorities: Object.keys(tripData.priorities).filter(key => tripData.priorities[key]),
-        // Sample generated itinerary (in production would come from Gemini)
-        generatedItinerary: {
-          summary: `A ${tripData.duration}-day adventure exploring ${tripData.destinations.map(d => d.value).filter(Boolean).join(', ')}.`,
-          dailyPlans: Array.from({ length: tripData.duration }, (_, i) => ({
-            day: i + 1,
-            activities: [
-              { time: '09:00', activity: 'Breakfast at local café', cost: '$15' },
-              { time: '10:30', activity: 'Visit main attractions', cost: '$25' },
-              { time: '13:00', activity: 'Lunch at recommended restaurant', cost: '$20' },
-              { time: '15:00', activity: 'Explore neighborhoods', cost: '$0' },
-              { time: '19:00', activity: 'Dinner at popular spot', cost: '$35' }
-            ],
-            accommodation: { name: 'Central Hotel', cost: '$120' },
-            transportation: { type: 'Public Transit', cost: '$10' },
-            totalDailyCost: '$225'
-          })),
-          budgetBreakdown: {
-            accommodation: Math.round(tripData.budget * 0.4),
-            food: Math.round(tripData.budget * 0.3),
-            activities: Math.round(tripData.budget * 0.2),
-            transportation: Math.round(tripData.budget * 0.1)
-          },
-          recommendations: [
-            'Book accommodation in advance to secure better rates',
-            'Consider a travel pass for public transportation',
-            'Try local street food to save on meal costs',
-            'Look for free walking tours to explore the city'
-          ]
-        }
+        body: JSON.stringify(tripData),
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate itinerary')
       }
       
-      // Store the itinerary in localStorage (in production, you might use Redux or React Context)
+      // Get the generated itinerary data from the response
+      const itineraryData = await response.json()
+      
+      // Store the itinerary in localStorage
       localStorage.setItem('currentItinerary', JSON.stringify(itineraryData))
       
       // Navigate to the itinerary page

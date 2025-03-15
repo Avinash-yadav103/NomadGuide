@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import ErrorDisplay from '../components/ErrorDisplay'
 
 const ItineraryPage = () => {
   const [itinerary, setItinerary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [darkMode, setDarkMode] = useState(true)
   const [activeDay, setActiveDay] = useState(1)
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
 
   const toggleDarkMode = () => {
@@ -17,12 +19,31 @@ const ItineraryPage = () => {
   useEffect(() => {
     // Fetch itinerary data from localStorage
     try {
+      setLoading(true)
       const storedItinerary = localStorage.getItem('currentItinerary')
+      
       if (storedItinerary) {
-        setItinerary(JSON.parse(storedItinerary))
+        const parsedItinerary = JSON.parse(storedItinerary)
+        
+        // Check if the itinerary has the expected structure
+        if (!parsedItinerary.generatedItinerary) {
+          console.error('Invalid itinerary format:', parsedItinerary)
+          throw new Error('Itinerary data is in an unexpected format')
+        }
+        
+        // Set the itinerary in state
+        setItinerary(parsedItinerary)
+        
+        // Set active day to 1 by default
+        if (parsedItinerary.generatedItinerary?.dailyPlans?.length > 0) {
+          setActiveDay(1)
+        }
+      } else {
+        console.log('No itinerary found in localStorage')
       }
     } catch (error) {
       console.error('Error loading itinerary:', error)
+      setError('We encountered an error while loading your itinerary. Please try creating a new one.')
     } finally {
       setLoading(false)
     }
@@ -45,6 +66,16 @@ const ItineraryPage = () => {
     return (
       <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'} flex items-center justify-center`}>
         <div className="animate-spin h-12 w-12 border-4 border-indigo-500 rounded-full border-t-transparent"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'} transition-colors duration-300`}>
+        <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <ErrorDisplay message={error} darkMode={darkMode} />
+        <Footer />
       </div>
     )
   }
